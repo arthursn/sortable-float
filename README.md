@@ -21,3 +21,19 @@ And of course you could drop the `e` and `x`, but then the output would be less 
 ```sh
 pip install git+https://github.com/arthursn/sortable-float
 ```
+
+## Examples
+
+```python
+from sortable_float import encode_float_sortable, decode_float_sortable
+
+# Encode a float to a sortable string representation
+encoded = encode_float_sortable(3.1415, precision=4)
+print(encoded)  # '0e-jgx3142'
+
+# Decode back to float
+decoded = decode_float_sortable(encoded)
+print(decoded)  # 3.142
+```
+
+More examples can be found in the [examples](examples) folder.
