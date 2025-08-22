@@ -37,7 +37,7 @@ def encode_float_sortable(number: float, precision: int = 3) -> str:
         eexp = _inv(eexp)
     # signs
     sign = "-0"[ispn]
-    sexp = "+--0"[(ispe == ispn) + (ispn << 1)]
+    sexp = "+--0"[(ispe == ispn) | (ispn << 1)]
     return f"{sign}e{sexp}{eexp}x{eman}"
 
 
