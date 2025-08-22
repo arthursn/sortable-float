@@ -21,18 +21,24 @@ def encode_float_sortable(number: float, precision: int = 3) -> str:
         '0e-jhx123'
     """
     assert precision > 0, "precision must be > 0"
-    man, exp = f"{number:.{precision - 1}e}".split("e")
-    pexp, exp = exp[0] != "-", exp.replace("-", "").replace("+", "")
-    pman, man = man[0] != "-", man.replace("-", "").replace(".", "")
-    if set(man) == {"0"}:
+    # raw
+    rman, rexp = f"{number:.{precision - 1}e}".split("e")
+    # is positive (number/exponent), encoded (mantissa/exponent)
+    ispn, eman = rman[0] != "-", rman.replace("-", "").replace(".", "")
+    ispe, eexp = rexp[0] != "-", rexp.replace("-", "").replace("+", "")
+    # zero is special
+    if set(eman) == {"0"}:
         return "0" * (precision + 6)
-    if not pman:
-        man = _inv(man)
-    if pman != pexp:
-        exp = _inv(exp)
-    sign = "-0"[pman]
-    sexp = ["-+", "-0"][pman][pexp]
-    return f"{sign}e{sexp}{exp}x{man}"
+    # encode matissa for positive number
+    if not ispn:
+        eman = _inv(eman)
+    # encode exponent for sign(number) xor sign(exponent)
+    if ispn != ispe:
+        eexp = _inv(eexp)
+    # signs
+    sign = "-0"[ispn]
+    sexp = "+--0"[(ispe == ispn) + (ispn << 1)]
+    return f"{sign}e{sexp}{eexp}x{eman}"
 
 
 def decode_float_sortable(encoded_number: str) -> float:
