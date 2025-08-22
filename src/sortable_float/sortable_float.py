@@ -18,7 +18,7 @@ def encode_float_sortable(number: float, precision: int = 3) -> str:
 
     Example:
         >>> encode_float_sortable(1.2345)
-        '0e-jhx123'
+        '0e000x123'
     """
     assert precision > 0, "precision must be > 0"
     # raw
@@ -55,18 +55,18 @@ def decode_float_sortable(encoded_number: str) -> float:
         The original floating-point number
 
     Example:
-        >>> decode_float_sortable('0e-jhx123')
+        >>> decode_float_sortable('0e000x123')
         1.23
     """
     if set(encoded_number) == {"0"}:
         return 0.0
     sign = encoded_number[0]
     sexp = encoded_number[2]
-    exp = encoded_number[3:5]
-    man = encoded_number[6:]
-    if ord(exp[0]) >= 97:
-        exp = _inv(exp)
-    if ord(man[0]) >= 97:
-        man = _inv(man)
-    man = f"{man[0]}.{man[1:]}"
-    return float(f"{sign}{man}e{sexp}{exp}")
+    dexp = encoded_number[3:5]
+    dman = encoded_number[6:]
+    if ord(dexp[0]) >= 97:
+        dexp = _inv(dexp)
+    if ord(dman[0]) >= 97:
+        dman = _inv(dman)
+    dman = f"{dman[0]}.{dman[1:]}"
+    return float(f"{sign}{dman}e{sexp}{dexp}")
