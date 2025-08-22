@@ -2,6 +2,7 @@
 Generate a markdown table of sortable float examples
 """
 
+import argparse
 import sys
 from collections import namedtuple
 
@@ -38,16 +39,25 @@ def decode_float_sortable_to_tuple(encoded_number: str) -> DecodedFloat:
     return DecodedFloat(sign, sexp, eexp, eman, dexp, dman)
 
 
-def generate_example_table(numbers, precision=3) -> str:
+def generate_example_table(numbers, precision: int = 3, sort: bool = False) -> str:
     """
     Generate a markdown table showing how each number is encoded.
     """
     table = f"| Input | Encoded version<br>({precision} significant figures) | Sign of the number (`-`) or padding (`0`) | Exponent sign (`-+`) or padding (`0`) | Exponent encoded<br>(decoded) | Mantissa encoded<br>(decoded) |\n"
     table += "| --- | --- | --- | --- | --- | --- |\n"
 
-    for num in numbers:
-        encoded = encode_float_sortable(num, precision=precision)
+    num_pairs = [
+        (
+            encode_float_sortable(num, precision=precision),
+            num,
+        )
+        for num in numbers
+    ]
 
+    if sort:
+        num_pairs = sorted(num_pairs)
+
+    for encoded, num in num_pairs:
         (sign, sexp, eexp, eman, dexp, dman) = decode_float_sortable_to_tuple(encoded)
 
         table += "| "
@@ -63,8 +73,6 @@ def generate_example_table(numbers, precision=3) -> str:
 
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-p",
@@ -72,6 +80,12 @@ if __name__ == "__main__":
         type=int,
         default=3,
         help="Number of significant digits to use in encoding (default: 3)",
+    )
+    parser.add_argument(
+        "-s",
+        "--sort",
+        action="store_true",
+        help="Sort input numbers by encoded representation",
     )
     parser.add_argument(
         "-r",
@@ -84,11 +98,15 @@ if __name__ == "__main__":
         nargs="*",
         type=float,
         default=[-10.0, -0.31622, 0, 0.31622, 10.0],
-        help="List of numbers to encode (default: [-100000.0, -3.1622, 0, 3.1622, 100000.0])",
+        help="List of numbers to encode (default: [-10.0, -0.31622, 0, 0.31622, 10.0])",
     )
     args = parser.parse_args()
 
-    markdown_table = generate_example_table(args.numbers, precision=args.precision)
+    markdown_table = generate_example_table(
+        args.numbers,
+        precision=args.precision,
+        sort=args.sort,
+    )
 
     if args.rich:
         try:
