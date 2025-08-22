@@ -22,18 +22,17 @@ def encode_float_sortable(number: float, precision: int = 3) -> str:
     """
     assert precision > 0, "precision must be > 0"
     man, exp = f"{number:.{precision - 1}e}".split("e")
-    exp = int(exp) - precision + 1
+    pexp, exp = exp[0] != "-", exp.replace("-", "").replace("+", "")
     pman, man = man[0] != "-", man.replace("-", "").replace(".", "")
-    pexp, exp = exp > 0, f"{abs(exp):02d}"
     if set(man) == {"0"}:
         return "0" * (precision + 6)
     if not pman:
         man = _inv(man)
     if pman != pexp:
         exp = _inv(exp)
-    sman = "-0"[pman]
+    sign = "-0"[pman]
     sexp = ["-+", "-0"][pman][pexp]
-    return f"{sman}e{sexp}{exp}x{man}"
+    return f"{sign}e{sexp}{exp}x{man}"
 
 
 def decode_float_sortable(encoded_number: str) -> float:
@@ -55,7 +54,7 @@ def decode_float_sortable(encoded_number: str) -> float:
     """
     if set(encoded_number) == {"0"}:
         return 0.0
-    sman = encoded_number[0]
+    sign = encoded_number[0]
     sexp = encoded_number[2]
     exp = encoded_number[3:5]
     man = encoded_number[6:]
@@ -63,4 +62,5 @@ def decode_float_sortable(encoded_number: str) -> float:
         exp = _inv(exp)
     if ord(man[0]) >= 97:
         man = _inv(man)
-    return float(f"{sman}{man}e{sexp}{exp}")
+    man = f"{man[0]}.{man[1:]}"
+    return float(f"{sign}{man}e{sexp}{exp}")
